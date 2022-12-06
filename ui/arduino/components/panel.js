@@ -23,9 +23,18 @@ function PanelHandle(state, emit) {
       ${Icon("icons/Delete.svg")}
     </button>
   `
+  let fileControls = html`
+    <button class="panel-button" onclick=${() => emit('select-root-folder')}>
+      /
+    </button>
+    <button class="panel-button" onclick=${() => emit('select-lib-folder')}>
+      ${Icon("icons/Open.svg")}
+    </button>
+  `
   return html`
     <div id="handle" onmousedown=${() => emit('start-resizing-panel')}>
       ${state.isTerminalOpen ? termControls : null}
+      ${state.isFilesOpen ? fileControls : null}
     </div>
     `
 }

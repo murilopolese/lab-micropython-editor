@@ -10,6 +10,14 @@ function resizeEditor(state) {
   }
 }
 
+function getSerialPath(state, filename) {
+  return state.navigationPath + '/' + filename
+}
+
+function getDiskPath(state) {
+  return state.diskPath + state.navigationPath + '/'
+}
+
 function store(state, emitter) {
   const serial = window.BridgeSerial
   const disk = window.BridgeDisk
@@ -22,6 +30,7 @@ function store(state, emitter) {
 
   state.diskPath = null
   state.serialPath = null
+  state.navigationPath = '/'
 
   state.isConnected = false
   state.isPortDialogOpen = false
@@ -142,11 +151,13 @@ function store(state, emitter) {
     let filename = state.selectedFile || 'undefined'
 
     if (state.selectedDevice === 'serial') {
-      await serial.saveFileContent(filename, contents)
+      let path = getSerialPath(state, filename)
+      await serial.saveFileContent(path, contents)
     }
 
     if (state.selectedDevice === 'disk' && state.diskPath) {
-      await disk.saveFileContent(state.diskPath, filename, contents)
+      let path = getDiskPath(state)
+      await disk.saveFileContent(path, filename, contents)
     }
 
     emitter.emit('update-files')
@@ -178,12 +189,14 @@ function store(state, emitter) {
 
     let content = ''
     if (state.selectedDevice === 'serial') {
-      content = await serial.loadFile(filename)
+      let path = getSerialPath(state, filename)
+      content = await serial.loadFile(path)
       content = content.replace(//g, ``) // XXX: Remove character that breaks execution
     }
 
     if (state.selectedDevice === 'disk') {
-      content = await disk.loadFile(state.diskPath, filename)
+      let path = getDiskPath(state)
+      content = await disk.loadFile(path, filename)
     }
 
     let editor = state.cache(AceEditor, 'editor').editor
@@ -204,7 +217,7 @@ function store(state, emitter) {
     if (state.isConnected) {
       await serial.stop()
       try {
-        state.serialFiles = await serial.listFiles()
+        state.serialFiles = await serial.listFiles(state.navigationPath)
         state.serialFiles = state.serialFiles.filter(
           f => f.indexOf('.') !== -1 // Only files with extensions
         )
@@ -217,7 +230,7 @@ function store(state, emitter) {
     }
     if (state.diskPath) {
       try {
-        state.diskFiles = await disk.listFiles(state.diskPath)
+        state.diskFiles = await disk.listFiles(state.diskPath + state.navigationPath)
       } catch (e) {
         console.log('error', e)
       }
@@ -239,6 +252,14 @@ function store(state, emitter) {
     emitter.emit('message', 'File downloaded!', 500)
     emitter.emit('update-files')
     emitter.emit('render')
+  })
+  emitter.on('select-root-folder', () => {
+    state.navigationPath = '/'
+    emitter.emit('update-files')
+  })
+  emitter.on('select-lib-folder', () => {
+    state.navigationPath = '/lib'
+    emitter.emit('update-files')
   })
 
   // PANEL MANAGEMENT

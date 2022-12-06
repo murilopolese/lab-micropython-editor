@@ -56,8 +56,8 @@ const Serial = {
   onData: (fn) => {
     board.serial.on('data', fn)
   },
-  listFiles: async () => {
-    let output = await board.fs_ls()
+  listFiles: async (folderPath) => {
+    let output = await board.fs_ls(folderPath)
     return extractFileArray(output)
   },
   loadFile: async (file) => {
