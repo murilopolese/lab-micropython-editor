@@ -322,21 +322,24 @@ function store(state, emitter) {
     if (state.selectedDevice === 'serial') {
       if (state.serialFiles.indexOf(oldFilename) !== -1) {
         // If old name exists, rename file
-        await serial.renameFile(oldFilename, filename)
+        const oldPath = getSerialPath(state, oldFilename)
+        const newPath = getSerialPath(state, filename)
+        await serial.renameFile(oldPath, newPath)
       } else {
         // If old name doesn't exist create new file
-        await serial.saveFileContent(filename, contents)
+        const path = getSerialPath(state, filename)
+        await serial.saveFileContent(path, contents)
       }
     }
 
     if (state.diskPath !== null && state.selectedDevice === 'disk') {
-
+      const path = getDiskPath(state)
       if (state.diskFiles.indexOf(oldFilename) !== -1) {
         // If old name exists, rename file
-        await disk.renameFile(state.diskPath, oldFilename, filename)
+        await disk.renameFile(path, oldFilename, filename)
       } else {
         // If old name doesn't exist create new file
-        await disk.saveFileContent(state.diskPath, filename, contents)
+        await disk.saveFileContent(path, filename, contents)
       }
     }
 
