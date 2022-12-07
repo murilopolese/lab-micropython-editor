@@ -209,6 +209,9 @@ img {
   background: var(--white-faded);
   margin: 0 0.25rem;
 }
+#panel #handle .panel-button[disabled] {
+  opacity: 0.5;
+}
 
 #terminal {
   overflow: hidden;

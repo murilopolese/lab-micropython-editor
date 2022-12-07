@@ -24,10 +24,18 @@ function PanelHandle(state, emit) {
     </button>
   `
   let fileControls = html`
-    <button class="panel-button" onclick=${() => emit('select-root-folder')}>
+    <button
+      class="panel-button"
+      onclick=${() => emit('select-root-folder')}
+      disabled=${state.navigationPath === '/'}
+      >
       /
     </button>
-    <button class="panel-button" onclick=${() => emit('select-lib-folder')}>
+    <button
+      class="panel-button"
+      onclick=${() => emit('select-lib-folder')}
+      disabled=${state.navigationPath === '/lib'}
+      >
       ${Icon("icons/Open.svg")}
     </button>
   `
