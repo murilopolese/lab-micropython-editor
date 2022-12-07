@@ -151,12 +151,12 @@ function store(state, emitter) {
     let filename = state.selectedFile || 'undefined'
 
     if (state.selectedDevice === 'serial') {
-      let path = getSerialPath(state, filename)
+      const path = getSerialPath(state, filename)
       await serial.saveFileContent(path, contents)
     }
 
     if (state.selectedDevice === 'disk' && state.diskPath) {
-      let path = getDiskPath(state)
+      const path = getDiskPath(state)
       await disk.saveFileContent(path, filename, contents)
     }
 
@@ -165,13 +165,14 @@ function store(state, emitter) {
   emitter.on('remove', async () => {
     log('remove')
     if (state.selectedDevice === 'serial') {
-      await serial.removeFile(state.selectedFile)
+      const path = getSerialPath(state, state.selectedFile)
+      await serial.removeFile(path)
     }
     if (state.selectedDevice === 'disk') {
-      await disk.removeFile(state.diskPath, state.selectedFile)
+      const path = getDiskPath(state)
+      await disk.removeFile(path, state.selectedFile)
     }
     emitter.emit('update-files')
-    emitter.emit('render')
   })
   emitter.on('select-file', async (device, filename) => {
     log('select-file')
@@ -189,13 +190,13 @@ function store(state, emitter) {
 
     let content = ''
     if (state.selectedDevice === 'serial') {
-      let path = getSerialPath(state, filename)
+      const path = getSerialPath(state, filename)
       content = await serial.loadFile(path)
       content = content.replace(//g, ``) // XXX: Remove character that breaks execution
     }
 
     if (state.selectedDevice === 'disk') {
-      let path = getDiskPath(state)
+      const path = getDiskPath(state)
       content = await disk.loadFile(path, filename)
     }
 
